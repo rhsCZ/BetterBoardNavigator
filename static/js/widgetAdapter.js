@@ -10,13 +10,17 @@ class WidgetAdapter{
         const pinoutTable = globalInstancesMap.getPinoutTable();
         const clickedComponentSpanList = globalInstancesMap.getClickedComponentSpanList();
         const selectedComponentSpan = globalInstancesMap.getSelectedComponentSpan();
-
+        
         allComponentsList.unselectAllItems();
+        WidgetAdapter.setSelectionModeToSingle();
+
         pinoutTable.unselectCurrentRows();
         pinoutTable.clearBody();
         DynamicSelectableListAdapter.generateMarkedComponentsList();
         SpanListAdapter.clearSpanList(clickedComponentSpanList);
-        selectedComponentSpan.innerText = "Component";
+        selectedComponentSpan.innerText = "";
+
+        EventHandler.forcedUntoggleButton(preserveComponentMarkersButton)
     }
 
     static resetSelectedNet(){
@@ -34,8 +38,14 @@ class WidgetAdapter{
         commonPrefixSpan.innerText = '';
         currentSideSpan.innerText = sideHandler.currentSide();
 
-        selectedComponentSpan.innerText = "Component";
+        selectedComponentSpan.innerText = "";
+    }
 
+    static setSelectionModeToSingle() {
+        const allComponentsList = globalInstancesMap.getAllComponentsList()
+
+        isSelectionModeSingle = true;
+        allComponentsList.selectionMode = "single";
     }
 }
 
@@ -84,6 +94,7 @@ class DynamicSelectableListAdapter{
     static selectItemFromListEvent(itemElement){
         const itemName = DynamicSelectableListAdapter.generatePinoutTableForComponent(itemElement);
         EngineAdapter.findComponentByName(itemName, isSelectionModeSingle);
+        EngineAdapter.componentInScreenCenter(itemName);
         DynamicSelectableListAdapter.generateMarkedComponentsList()
     }
 
@@ -198,9 +209,17 @@ class InputModalBoxAdapter{
     static getComponentNameFromInput(componentName){
         const modalBoxComponentName = componentName.toUpperCase();
         const isComponentExist = EngineAdapter.findComponentByName(modalBoxComponentName, isSelectionModeSingle);
-        if (isComponentExist){
+        if (isComponentExist){            
+            const allComponentsList = globalInstancesMap.getAllComponentsList();
+
+            if (isSelectionModeSingle) {
+                allComponentsList.unselectAllItems();
+            }
+            allComponentsList.selectItemByName(modalBoxComponentName);
+
             EngineAdapter.componentInScreenCenter(modalBoxComponentName);
             PinoutTableAdapter.generatePinoutTable(modalBoxComponentName);
+            DynamicSelectableListAdapter.generateMarkedComponentsList();
         }
     }
 
