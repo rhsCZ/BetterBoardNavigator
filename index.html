@@ -42,7 +42,6 @@
             <button type="button" class="main-button" id="components-area-button" disabled="true">Area from components</button>
         </div>
         <div class="buttons-flexbox">
-            <button type="button" class="main-button" id="toggle-leave-markers-button" disabled="true">Multiple component selection</button>
             <button type="button" class="main-button" id="unselect-components-button" disabled="true">Clear component markers</button>
             <button type="button" class="main-button" id="unselect-net-button" disabled="true">Unselect net</button>
         </div>
@@ -59,30 +58,56 @@
             <div class="table-body">
                 <div class="table-row">
                     <div>
-                        <p>Current side</p>
+                        <p class="section-title">Current side</p>
                     </div>
                     <div>
-                        <p><span class="highlighted-text" id="current-side-span"></span></p>
+                        <p><span class="highlighted-text section-title" id="current-side-span"></span></p>
                     </div>
                 </div>
                 <div class="table-row">
                     <div>
-                        <p>Highlighted prefix</p>
+                        <p class="section-title">Prefix</p>
                     </div>
                     <div>
-                        <p><span class="highlighted-text" id="common-prefix-span"></span></p>
+                        <p><span class="highlighted-text section-title" id="common-prefix-span"></span></p>
                     </div>
                 </div>
             </div>
         </div>
         <div id="item-left-middle"  class="functionality-container">
             <div class="item-header">
-                <p>All components</p> 
+                <p class="section-title">All components</p> 
             </div>
-            <div class="scrollable-list" id="scrollable-all-components-list"></div>            
-            <button type="button" class="main-button" id="find-component-by-name-button" disabled="true">Find component by name</button>
+            <div class="scrollable-list" id="scrollable-all-components-list"></div>     
+            <div class="buttons-flexbox vertical-buttons-flexbox">       
+                <button type="button" class="main-button" id="find-component-by-name-button" disabled="true">Find component by name</button>
+                <button type="button" class="main-button" id="toggle-leave-markers-button" disabled="true">Multiple component selection</button>
+            </div>
         </div>
         <div id="item-left-bottom" class="functionality-container">
+            <div class="item-header">
+                <p class="section-title">Marked components</p>
+            </div>
+            <div class="scrollable-list" id="scrollable-marked-components-list"></div>
+        </div>
+        <div id="item-right-bottom" class="functionality-container">
+            <div class="item-header"> 
+                <p class="section-title">Nets list</p>
+            </div>
+            <div id="net-treeview" class="tree-view"></div>
+        </div>
+        <div id="item-center" class="functionality-container">
+            <canvas id="canvas"></canvas>
+        </div>
+        <div id="item-right-top" class="functionality-container">
+            <div class="item-header">
+                <p class="section-title">Clicked components</p>
+            </div>
+            <div id="clicked-components">
+                <p></p>
+            </div>
+        </div>
+        <div id="item-right-middle" class="functionality-container">
             <div class="item-header"> 
                 <p><span id="selected-component-span">Component</span> pinout</p>
             </div>
@@ -95,29 +120,6 @@
                 </div>
             </div>
             <div id="pinout-table" class="table-body"></div>
-        </div>
-        <div id="item-center" class="functionality-container">
-            <canvas id="canvas"></canvas>
-        </div>
-        <div id="item-right-top" class="functionality-container">
-            <div class="item-header">
-                <p>Clicked components</p>
-            </div>
-            <div id="clicked-components">
-                <p></p>
-            </div>
-        </div>
-        <div id="item-right-middle" class="functionality-container">
-            <div class="item-header">
-                <p>Marked components</p>
-            </div>
-            <div class="scrollable-list" id="scrollable-marked-components-list"></div>
-        </div>
-        <div id="item-right-bottom" class="functionality-container">
-            <div class="item-header"> 
-                <p>Nets list</p>
-            </div>
-            <div id="net-treeview" class="tree-view"></div>
         </div>
     </div>
     <div id="text-modal" class="modal">
@@ -274,7 +276,7 @@
         const areaFromComponentsButton = document.getElementById("components-area-button");
         const clickedComponentContainer = document.getElementById("clicked-components");
         const allComponentsContainer = document.getElementById("scrollable-all-components-list");
-        const preserveComponentMarkesButton = document.getElementById("toggle-leave-markers-button");
+        const preserveComponentMarkersButton = document.getElementById("toggle-leave-markers-button");
         const clearMarkersButton = document.getElementById("unselect-components-button");
         const markedComponentsContainer = document.getElementById("scrollable-marked-components-list");
         const pinoutTableContainer = document.getElementById("pinout-table");
@@ -344,20 +346,7 @@
 
         var sideHandler = new SideHandler();
 
-
-
-        // This is a workaround about the fact that the pygame-ce is not run in an inifite loop but as an image generator. 
-        // As result "main game loop" doesn't exist, which results in throwing errors when any key is pressed down
-        // This cludge overrides JS error handler and ignores these event errors and manually sets keyboard behaviour (onkeydown event)
-        window.onerror = function(message, source, lineno, colno, error) {
-            if (error.message.includes("emscripten_compute_dom_pk_code")){
-                return true;
-            }
-        }
         
-        // ignore syntax errors from python's regex
-        console.warn = () => {};
-
         document.addEventListener("DOMContentLoaded", async () => {
             pinoutTable.generateTable();
             
@@ -395,8 +384,8 @@
             toggleOutlinesButton.addEventListener("click", EventHandler.toggleOutlines);
             resetViewButton.addEventListener("click", EngineAdapter.resetView);
             areaFromComponentsButton.addEventListener("click", EngineAdapter.areaFromComponents);
-            preserveComponentMarkesButton.addEventListener("click", () => {
-                isSelectionModeSingle = EventHandler.preserveComponentMarkes(isSelectionModeSingle);
+            preserveComponentMarkersButton.addEventListener("click", () => {
+                isSelectionModeSingle = EventHandler.preserveComponentMarkers(isSelectionModeSingle);
             });
             clearMarkersButton.addEventListener("click", EngineAdapter.clearMarkers);
             unselectNetButton.addEventListener("click", EventHandler.unselectNet);            
