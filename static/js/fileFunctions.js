@@ -2,10 +2,8 @@ function openAndLoadCadFile(pyodide, file) {
     var fileName = `/${file.name}`;
     const reader = new FileReader();
 
-    showLoadingScreen()
-    setLoadingScreenMessage("Processing schematic file")
+    setLoadingScreenMessage("Processing schematic file");
     showLoadingDots();
-    toggleLoadingDotsOn();
 
     reader.onload = (event) => {
 
