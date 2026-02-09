@@ -6,7 +6,6 @@ function openAndLoadCadFile(pyodide, file) {
     showLoadingDots();
 
     reader.onload = (event) => {
-
         const fileContent = event.target.result;
         pyodide.FS.writeFile(fileName, new Uint8Array(fileContent));
         const side = sideHandler.currentSide();
