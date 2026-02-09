@@ -1,3 +1,5 @@
+let blockKeyboardForSDL = false;
+
 class EventHandler{
     static compensateUserDevicePixelRatio(){
         const dpr = window.devicePixelRatio;
@@ -21,6 +23,12 @@ class EventHandler{
             }
             event.preventDefault();
         }
+    }
+
+    static isTextFieldEvent(event) {
+        const target = event.target;
+        const tag = (target?.tagName || "").toLowerCase();
+        return tag === "input" || tag === "textarea" || target?.isContentEditable;
     }
 
     static async windowResize(){
