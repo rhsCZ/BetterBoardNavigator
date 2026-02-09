@@ -33,7 +33,10 @@ async function loadLocalModules(pyodide) {
                           'camcadLoader', 'gencadLoader', 'odbPlusPlusLoader', 'visecadLoader',
                           'loaderSelectorFactory','boardWrapper', 'pygameDrawBoard']
     
-    modulesList.forEach(async (moduleName) => {
-        await copyModuleToVirtualMemory(pyodide, moduleName)
-    });
+    for (const moduleName of modulesList) {
+        await copyModuleToVirtualMemory(pyodide, moduleName);
+    }
+
+    hideLoadingDots();
+    setLoadingScreenMessage("Application initialized. Load a schematic file!")
 }
