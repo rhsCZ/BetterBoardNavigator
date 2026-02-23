@@ -10,9 +10,9 @@ function main(){
         _initWidgetClasses();
         
         pyodide = await loadPyodide();
-        await configurePythonPath(pyodide);                      
-        await loadPygame(pyodide);            
-        await loadLocalModules(pyodide);
+        await PythonConfigurator.configurePythonPath(pyodide);                      
+        await PythonConfigurator.loadPygame(pyodide);            
+        await PythonConfigurator.loadLocalModules(pyodide);
 
         pyodide.canvas.setCanvas2D(canvas);
         EventHandler.setCanvasDimensions();
