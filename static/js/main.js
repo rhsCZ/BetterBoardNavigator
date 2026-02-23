@@ -41,9 +41,9 @@ function main(){
         }, true);            
 
 
-        globalInstancesMap.canvas.addEventListener("mousedown", mouseDownEvent);
-        globalInstancesMap.canvas.addEventListener("mouseup", mouseUpEvent);       
-        globalInstancesMap.canvas.addEventListener("mousemove", mouseMoveEvent);
+        globalInstancesMap.canvas.addEventListener("mousedown", MouseEventHandler.mouseDownEvent);
+        globalInstancesMap.canvas.addEventListener("mouseup", MouseEventHandler.mouseUpEvent);       
+        globalInstancesMap.canvas.addEventListener("mousemove", MouseEventHandler.mouseMoveEvent);
         globalInstancesMap.canvas.addEventListener("wheel", EngineAdapter.zoomInOut);
 
         globalInstancesMap.loadFileButton.addEventListener("click", () => {
