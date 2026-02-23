@@ -46,8 +46,8 @@ class EventHandler{
     static loadFile(event, loadedFileName){
         const file = event.target.files[0];
         if (file) {
-            removePreviousFileFromFS(pyodide, loadedFileName);
-            openAndLoadCadFile(pyodide, file);
+            CadFileLoader.removePreviousFileFromFS(pyodide, loadedFileName);
+            CadFileLoader.openAndLoadCadFile(pyodide, file);
             EventHandler.enableButtons();
             return file.name;
         }
