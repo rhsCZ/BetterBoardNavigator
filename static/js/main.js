@@ -4,91 +4,10 @@ function main(){
 
     EventHandler.compensateUserDevicePixelRatio();
 
-    const canvas = document.getElementById("canvas");
-    const canvasParent = document.getElementById("item-center");
-    const loadFileButton = document.getElementById("load-file-button");
-    const loadFileInput = document.getElementById("load-file-input");
-    const changeSideButton = document.getElementById("change-side-button");
-    const rotateButton = document.getElementById("rotate-button");
-    const mirrorSideButton = document.getElementById("mirror-side-button");
-    const toggleOutlinesButton = document.getElementById("toggle-outlines-button");
-    const resetViewButton = document.getElementById("default-view-button");    
-    const areaFromComponentsButton = document.getElementById("components-area-button");
-    const clickedComponentContainer = document.getElementById("clicked-components");
-    const allComponentsContainer = document.getElementById("scrollable-all-components-list");
-    const preserveComponentMarkersButton = document.getElementById("toggle-leave-markers-button");
-    const clearMarkersButton = document.getElementById("unselect-components-button");
-    const markedComponentsContainer = document.getElementById("scrollable-marked-components-list");
-    const pinoutTableContainer = document.getElementById("pinout-table");
-    const netTreeviewContainer = document.getElementById("net-treeview");
-    const unselectNetButton = document.getElementById("unselect-net-button");
-    const currentSideSpan = document.getElementById("current-side-span");
-    const findComponentUsingNameButton = document.getElementById("find-component-by-name-button");
-    const prefixComponentsButton = document.getElementById("prefix-components-button");
-    const unselectPrefixComponentsButton = document.getElementById("unselect-prefix-components-button");
-    const commonPrefixSpan = document.getElementById("common-prefix-span");
-    const selectedComponentSpan = document.getElementById("selected-component-span");
-    const helpButton = document.getElementById("help-button");
 
-    const textModalContainer = document.getElementById("text-modal");
-    const textModalCloseSpan = document.getElementById("text-modal-close-span");
-    const textModalPromptHeader = document.getElementById("text-modal-header");
-    const textModalInput = document.getElementById("text-modal-input");
-    const textModalSubmitButton = document.getElementById("text-modal-submit-text");
-
-    const paragraphModalContainer = document.getElementById("paragraph-modal");
-    const paragraphModalCloseSpan = document.getElementById("paragraph-modal-close-span");
-    const paragraphModalPromptHeader = document.getElementById("paragraph-modal-header");
-    const paragraphModalTextParagraph = document.getElementById("paragraph-modal-p");
-
-    const helpModalContainer = document.getElementById("help-modal");
-    const helpModalCloseSpan = document.getElementById("help-modal-close-span");
-    const helpModalHeader = document.getElementById("help-modal-header");
-    const showDemoBoardButton = document.getElementById("show-demo-board-button");
-    
-
-    var globalInstancesMap = new GlobalInstancesMap();
-    globalInstancesMap.setCanvas(canvas);
-    globalInstancesMap.setCanvasParent(canvasParent);
-    globalInstancesMap.setSelectedComponentSpan(selectedComponentSpan);
-    globalInstancesMap.setCommonPrefixSpan(commonPrefixSpan);
-    globalInstancesMap.setCurrentSideSpan(currentSideSpan);
-    globalInstancesMap.setToggleOutlinesButton(toggleOutlinesButton);
-
-    var modalSubmit = new ModalSubmit(textModalContainer, textModalCloseSpan, 
-                                        textModalPromptHeader, textModalInput, 
-                                        textModalSubmitButton);
-    globalInstancesMap.setModalSubmit(modalSubmit);
-    globalInstancesMap.setTextModalSubmitButton(textModalSubmitButton);
-    globalInstancesMap.setTextModalInput(textModalInput);
-    
-
-    var modalHelp = new ModalHelp(helpModalContainer, helpModalCloseSpan, helpModalHeader, showDemoBoardButton);
-    modalHelp.eventParameter = loadedFileName;
-    modalHelp.setButtonEvent(EventHandler.loadDemoFile);
-    globalInstancesMap.setModalHelp(modalHelp);
-    globalInstancesMap.setShowDemoBoardButton(showDemoBoardButton);
-
-    var allComponentsList = DynamicSelectableListAdapter.initDynamicSelectableList(allComponentsContainer);
-    globalInstancesMap.setAllComponentsList(allComponentsList);
-
-    var markedComponentsList = DynamicSelectableListAdapter.initDynamicSelectableList(markedComponentsContainer);
-    globalInstancesMap.setMarkedComponentsList(markedComponentsList);
-
-    var pinoutTable = PinoutTableAdapter.initPinoutTable(pinoutTableContainer);
-    globalInstancesMap.setPinoutTable(pinoutTable);
-
-    var netsTreeview = TreeViewAdapter.initTreeView(netTreeviewContainer);
-    globalInstancesMap.setNetsTreeview(netsTreeview);
-
-    var clickedComponentSpanList = SpanListAdapter.initSpanList(clickedComponentContainer);
-    globalInstancesMap.setClickedComponentSpanList(clickedComponentSpanList);
-
-    var sideHandler = new SideHandler();
-
-    
     document.addEventListener("DOMContentLoaded", async () => {
-        pinoutTable.generateTable();
+        _bindHtmlElements();
+        _initWidgetClasses();
         
         pyodide = await loadPyodide();
         await configurePythonPath(pyodide);                      
@@ -98,9 +17,10 @@ function main(){
         pyodide.canvas.setCanvas2D(canvas);
         EventHandler.setCanvasDimensions();
         
-        loadFileButton.disabled = false;
-        helpButton.disabled = false;
-        
+        globalInstancesMap.loadFileButton.disabled = false;
+        globalInstancesMap.helpButton.disabled = false;
+
+        /* EVENTS */
         window.addEventListener("resize", EventHandler.windowResize);
 
         window.addEventListener("keydown", (event) =>{
@@ -121,39 +41,115 @@ function main(){
         }, true);            
 
 
-        canvas.addEventListener("mousedown", mouseDownEvent);
-        canvas.addEventListener("mouseup", mouseUpEvent);       
-        canvas.addEventListener("mousemove", mouseMoveEvent);
-        canvas.addEventListener("wheel", EngineAdapter.zoomInOut);
+        globalInstancesMap.canvas.addEventListener("mousedown", mouseDownEvent);
+        globalInstancesMap.canvas.addEventListener("mouseup", mouseUpEvent);       
+        globalInstancesMap.canvas.addEventListener("mousemove", mouseMoveEvent);
+        globalInstancesMap.canvas.addEventListener("wheel", EngineAdapter.zoomInOut);
 
-        loadFileButton.addEventListener("click", () => {
-            loadFileInput.click();
+        globalInstancesMap.loadFileButton.addEventListener("click", () => {
+            globalInstancesMap.loadFileInput.click();
         });
-        loadFileInput.addEventListener("change", (event) => {
-            loadedFileName = EventHandler.loadFile(event, loadedFileName);
+        globalInstancesMap.loadFileInput.addEventListener("change", (event) => {
+            globalInstancesMap.loadedFileName = EventHandler.loadFile(event, loadedFileName);
         });
 
-        changeSideButton.addEventListener("click", EngineAdapter.changeSide);
-        rotateButton.addEventListener("click", EngineAdapter.rotateBoard);
-        mirrorSideButton.addEventListener("click", EngineAdapter.mirrorSide);
-        toggleOutlinesButton.addEventListener("click", EventHandler.toggleOutlines);
-        resetViewButton.addEventListener("click", EngineAdapter.resetView);
-        areaFromComponentsButton.addEventListener("click", EngineAdapter.areaFromComponents);
-        preserveComponentMarkersButton.addEventListener("click", () => {
+        globalInstancesMap.changeSideButton.addEventListener("click", EngineAdapter.changeSide);
+        globalInstancesMap.rotateButton.addEventListener("click", EngineAdapter.rotateBoard);
+        globalInstancesMap.mirrorSideButton.addEventListener("click", EngineAdapter.mirrorSide);
+        globalInstancesMap.toggleOutlinesButton.addEventListener("click", EventHandler.toggleOutlines);
+        globalInstancesMap.resetViewButton.addEventListener("click", EngineAdapter.resetView);
+        globalInstancesMap.areaFromComponentsButton.addEventListener("click", EngineAdapter.areaFromComponents);
+        globalInstancesMap.preserveComponentMarkersButton.addEventListener("click", () => {
             isSelectionModeSingle = EventHandler.preserveComponentMarkers(isSelectionModeSingle);
         });
-        clearMarkersButton.addEventListener("click", EngineAdapter.clearMarkers);
-        unselectNetButton.addEventListener("click", EventHandler.unselectNet);            
-        findComponentUsingNameButton.addEventListener("click", EventHandler.findComponentUsingName);
-        prefixComponentsButton.addEventListener("click", EventHandler.showCommonPrefixComponents);
-        unselectPrefixComponentsButton.addEventListener("click", EventHandler.hideCommonPrefixComponents);
-        helpButton.addEventListener("click", EventHandler.showHelpModalBox);
+        globalInstancesMap.clearMarkersButton.addEventListener("click", EngineAdapter.clearMarkers);
+        globalInstancesMap.unselectNetButton.addEventListener("click", EventHandler.unselectNet);            
+        globalInstancesMap.findComponentUsingNameButton.addEventListener("click", EventHandler.findComponentUsingName);
+        globalInstancesMap.prefixComponentsButton.addEventListener("click", EventHandler.showCommonPrefixComponents);
+        globalInstancesMap.unselectPrefixComponentsButton.addEventListener("click", EventHandler.hideCommonPrefixComponents);
+        globalInstancesMap.helpButton.addEventListener("click", EventHandler.showHelpModalBox);
         
-        textModalInput.addEventListener("focus", () => {
+        globalInstancesMap.textModalInput.addEventListener("focus", () => {
             isTextModalInputFocused = true;
         });
-        textModalInput.addEventListener("blur", () => {
+        globalInstancesMap.textModalInput.addEventListener("blur", () => {
             isTextModalInputFocused = false;
         });
     });
+}
+
+
+function _bindHtmlElements(){
+    globalInstancesMap.canvas = document.getElementById("canvas");
+    globalInstancesMap.canvasParent = document.getElementById("item-center");
+    globalInstancesMap.loadFileButton = document.getElementById("load-file-button");
+    globalInstancesMap.loadFileInput = document.getElementById("load-file-input");
+    globalInstancesMap.changeSideButton = document.getElementById("change-side-button");
+    globalInstancesMap.rotateButton = document.getElementById("rotate-button");
+    globalInstancesMap.mirrorSideButton = document.getElementById("mirror-side-button");
+    globalInstancesMap.toggleOutlinesButton = document.getElementById("toggle-outlines-button");
+    globalInstancesMap.resetViewButton = document.getElementById("default-view-button");    
+    globalInstancesMap.areaFromComponentsButton = document.getElementById("components-area-button");
+    globalInstancesMap.clickedComponentContainer = document.getElementById("clicked-components");
+    globalInstancesMap.allComponentsContainer = document.getElementById("scrollable-all-components-list");
+    globalInstancesMap.preserveComponentMarkersButton = document.getElementById("toggle-leave-markers-button");
+    globalInstancesMap.clearMarkersButton = document.getElementById("unselect-components-button");
+    globalInstancesMap.markedComponentsContainer = document.getElementById("scrollable-marked-components-list");
+    globalInstancesMap.pinoutTableContainer = document.getElementById("pinout-table");
+    globalInstancesMap.netTreeviewContainer = document.getElementById("net-treeview");
+    globalInstancesMap.unselectNetButton = document.getElementById("unselect-net-button");
+    globalInstancesMap.currentSideSpan = document.getElementById("current-side-span");
+    globalInstancesMap.findComponentUsingNameButton = document.getElementById("find-component-by-name-button");
+    globalInstancesMap.prefixComponentsButton = document.getElementById("prefix-components-button");
+    globalInstancesMap.unselectPrefixComponentsButton = document.getElementById("unselect-prefix-components-button");
+    globalInstancesMap.commonPrefixSpan = document.getElementById("common-prefix-span");
+    globalInstancesMap.selectedComponentSpan = document.getElementById("selected-component-span");
+    globalInstancesMap.helpButton = document.getElementById("help-button");
+
+    globalInstancesMap.textModalContainer = document.getElementById("text-modal");
+    globalInstancesMap.textModalCloseSpan = document.getElementById("text-modal-close-span");
+    globalInstancesMap.textModalPromptHeader = document.getElementById("text-modal-header");
+    globalInstancesMap.textModalInput = document.getElementById("text-modal-input");
+    globalInstancesMap.textModalSubmitButton = document.getElementById("text-modal-submit-text");
+
+    globalInstancesMap.helpModalContainer = document.getElementById("help-modal");
+    globalInstancesMap.helpModalCloseSpan = document.getElementById("help-modal-close-span");
+    globalInstancesMap.helpModalHeader = document.getElementById("help-modal-header");
+    globalInstancesMap.showDemoBoardButton = document.getElementById("show-demo-board-button");
+}
+
+function _initWidgetClasses(){
+    const modalSubmit = new ModalSubmit(globalInstancesMap.textModalContainer, globalInstancesMap.textModalCloseSpan, 
+        globalInstancesMap.textModalPromptHeader, globalInstancesMap.textModalInput, globalInstancesMap.textModalSubmitButton);
+    globalInstancesMap.modalSubmit = modalSubmit;
+    
+    const modalHelp = new ModalHelp(globalInstancesMap.helpModalContainer, globalInstancesMap.helpModalCloseSpan, 
+        globalInstancesMap.helpModalHeader, globalInstancesMap.showDemoBoardButton);
+    modalHelp.eventParameter = loadedFileName;
+    modalHelp.setButtonEvent(EventHandler.loadDemoFile);
+    globalInstancesMap.modalHelp = modalHelp;
+
+
+    const allComponentsList = DynamicSelectableListAdapter.initDynamicSelectableList(globalInstancesMap.allComponentsContainer);
+    globalInstancesMap.allComponentsList = allComponentsList;
+
+    const markedComponentsList = DynamicSelectableListAdapter.initDynamicSelectableList(globalInstancesMap.markedComponentsContainer);
+    globalInstancesMap.markedComponentsList = markedComponentsList;
+
+
+    const pinoutTable = PinoutTableAdapter.initPinoutTable(globalInstancesMap.pinoutTableContainer);
+    pinoutTable.generateTable();
+    globalInstancesMap.pinoutTable = pinoutTable;
+
+
+    const netsTreeview = TreeViewAdapter.initTreeView(globalInstancesMap.netTreeviewContainer);
+    globalInstancesMap.netsTreeview = netsTreeview;
+
+
+    const clickedComponentSpanList = SpanListAdapter.initSpanList(globalInstancesMap.clickedComponentContainer);
+    globalInstancesMap.clickedComponentSpanList = clickedComponentSpanList;
+
+
+    const sideHandler = new SideHandler();
+    globalInstancesMap.sideHandler = sideHandler;
 }

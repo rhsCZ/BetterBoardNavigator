@@ -6,10 +6,11 @@ class WidgetAdapter{
     }
 
     static resetSelectedComponentsWidgets(){
-        const allComponentsList = globalInstancesMap.getAllComponentsList()
-        const pinoutTable = globalInstancesMap.getPinoutTable();
-        const clickedComponentSpanList = globalInstancesMap.getClickedComponentSpanList();
-        const selectedComponentSpan = globalInstancesMap.getSelectedComponentSpan();
+        const allComponentsList = globalInstancesMap.allComponentsList;
+        const pinoutTable = globalInstancesMap.pinoutTable;
+        const clickedComponentSpanList = globalInstancesMap.clickedComponentSpanList;
+        const selectedComponentSpan = globalInstancesMap.selectedComponentSpan;
+        const preserveComponentMarkersButton = globalInstancesMap.preserveComponentMarkersButton;
         
         allComponentsList.unselectAllItems();
         WidgetAdapter.setSelectionModeToSingle();
@@ -24,16 +25,17 @@ class WidgetAdapter{
     }
 
     static resetSelectedNet(){
-        const pinoutTable = globalInstancesMap.getPinoutTable();
+        const pinoutTable = globalInstancesMap.pinoutTable;
 
         TreeViewAdapter.resetTreeview();
         pinoutTable.unselectCurrentRows();
     }
 
     static resetSpans(){
-        const commonPrefixSpan = globalInstancesMap.getCommonPrefixSpan();
-        const currentSideSpan = globalInstancesMap.getCurrentSideSpan();
-        const selectedComponentSpan = globalInstancesMap.getSelectedComponentSpan();
+        const commonPrefixSpan = globalInstancesMap.commonPrefixSpan;
+        const currentSideSpan = globalInstancesMap.currentSideSpan;
+        const selectedComponentSpan = globalInstancesMap.selectedComponentSpan;
+        const sideHandler = globalInstancesMap.sideHandler;
 
         commonPrefixSpan.innerText = '';
         currentSideSpan.innerText = sideHandler.currentSide();
@@ -42,7 +44,7 @@ class WidgetAdapter{
     }
 
     static setSelectionModeToSingle() {
-        const allComponentsList = globalInstancesMap.getAllComponentsList()
+        const allComponentsList = globalInstancesMap.allComponentsList
 
         isSelectionModeSingle = true;
         allComponentsList.selectionMode = "single";
@@ -57,7 +59,7 @@ class SpanListAdapter{
     }
 
     static generateSpanList(clickedComponentsList){
-        const clickedComponentSpanList = globalInstancesMap.getClickedComponentSpanList();
+        const clickedComponentSpanList = globalInstancesMap.clickedComponentSpanList;
 
         clickedComponentSpanList.addSpans(clickedComponentsList);
         clickedComponentSpanList.generate();
@@ -110,7 +112,7 @@ class DynamicSelectableListAdapter{
     }
 
     static generateMarkedComponentsList(){
-        const markedComponentsList = globalInstancesMap.getMarkedComponentsList();
+        const markedComponentsList = globalInstancesMap.markedComponentsList;
 
         pyodide.runPython(`
             componentsList = engine.getSelectedComponents()
@@ -132,23 +134,23 @@ class PinoutTableAdapter{
         `);
         let pinoutMap = pyodide.globals.get("pinoutDict").toJs();
         
-        const pinoutTable = globalInstancesMap.getPinoutTable();
+        const pinoutTable = globalInstancesMap.pinoutTable;
         pinoutTable.rowEvent = PinoutTableAdapter.selectNetFromTableEvent;
         pinoutTable.beforeRowEvent = EngineAdapter.unselectNet;
         pinoutTable.addRows(pinoutMap);
         pinoutTable.generateTable();
         
-        const netsTreeview = globalInstancesMap.getNetsTreeview();
+        const netsTreeview = globalInstancesMap.netsTreeview;
         const netTreeSelectedNetName = netsTreeview.getSelectedNetName();
         pinoutTable.selectRowByName(netTreeSelectedNetName);
         
-        const selectedComponentSpan = globalInstancesMap.getSelectedComponentSpan();
+        const selectedComponentSpan = globalInstancesMap.selectedComponentSpan;
         selectedComponentSpan.innerText = componentName;
     }
 
     static selectNetFromTableEvent(netName){
-        const netsTreeview = globalInstancesMap.getNetsTreeview();
-        const pinoutTable = globalInstancesMap.getPinoutTable();
+        const netsTreeview = globalInstancesMap.netsTreeview;
+        const pinoutTable = globalInstancesMap.pinoutTable;
         const selectedRowsList = pinoutTable.getSelectedRows();
 
         netsTreeview.scrollToBranchByName(netName);
@@ -158,7 +160,7 @@ class PinoutTableAdapter{
     }
 
     static clearBody(){
-        const pinoutTable = globalInstancesMap.getPinoutTable();
+        const pinoutTable = globalInstancesMap.pinoutTable;
 
         pinoutTable.clearBody()
     }
@@ -171,7 +173,7 @@ class TreeViewAdapter{
     }
 
     static generateTreeView(netsMap){
-        const netsTreeview = globalInstancesMap.getNetsTreeview();
+        const netsTreeview = globalInstancesMap.netsTreeview;
 
         netsTreeview.eventBeforeSelection = EngineAdapter.unselectNet;
         netsTreeview.netEvent = TreeViewAdapter.selectNetFromTreeviewEvent;
@@ -181,8 +183,8 @@ class TreeViewAdapter{
     }
     
     static selectNetFromTreeviewEvent(netName){
-        const netsTreeview = globalInstancesMap.getNetsTreeview();
-        const pinoutTable = globalInstancesMap.getPinoutTable();
+        const netsTreeview = globalInstancesMap.netsTreeview;
+        const pinoutTable = globalInstancesMap.pinoutTable;
 
         pinoutTable.selectRowByName(netName);    
 
@@ -192,7 +194,7 @@ class TreeViewAdapter{
     }
 
     static resetTreeview(){
-        const netsTreeview = globalInstancesMap.getNetsTreeview();
+        const netsTreeview = globalInstancesMap.netsTreeview;
         
         netsTreeview.unselectCurrentBranch();
         netsTreeview.unselectCurrentItem();
@@ -210,7 +212,7 @@ class InputModalBoxAdapter{
         const modalBoxComponentName = componentName.toUpperCase();
         const isComponentExist = EngineAdapter.findComponentByName(modalBoxComponentName, isSelectionModeSingle);
         if (isComponentExist){            
-            const allComponentsList = globalInstancesMap.getAllComponentsList();
+            const allComponentsList = globalInstancesMap.allComponentsList;
 
             if (isSelectionModeSingle) {
                 allComponentsList.unselectAllItems();
@@ -228,7 +230,7 @@ class InputModalBoxAdapter{
     
         const isPrefixExist = EngineAdapter.showCommonPrefixComponents(modalBoxCommonPrefix);
         if (isPrefixExist){
-            const  commonPrefixSpan = globalInstancesMap.getCommonPrefixSpan();
+            const  commonPrefixSpan = globalInstancesMap.commonPrefixSpan;
             commonPrefixSpan.innerText = modalBoxCommonPrefix;
         }
     }

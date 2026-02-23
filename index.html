@@ -25,7 +25,6 @@
     <script type="text/javascript" src="./static/js/modals.js"></script>
     <script type="text/javascript" src="./static/js/dynamicSpanList.js"></script>
     <script type="text/javascript" src="./static/js/widgetAdapter.js"></script>
-    <script type="text/javascript" src="./static/js/globalInstancesMap.js"></script>
 </head>
 <body>
     <div class="buttons-row-flexbox">
@@ -263,6 +262,11 @@
         </div>
     </div>
     <script>
+        /* class or namespace for storing html elements and widget classes*/ 
+        class GlobalInstancesMap{};
+
+
+        /* global variables and flags */
         let pyodide = null;
         let loadedFileName = "";
         let resizeTimeout = null;
@@ -274,6 +278,8 @@
         let isMouseClickedFirstTime = false;
         let isSelectionModeSingle = true;
 
+    
+        const globalInstancesMap = new GlobalInstancesMap();
         main();
     </script>
 </body>
