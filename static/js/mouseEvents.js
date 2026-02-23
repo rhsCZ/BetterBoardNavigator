@@ -1,7 +1,3 @@
-let isMousePressed = false;
-let isMouseClickedFirstTime = false;
-let isSelectionModeSingle = true;
-
 function mouseUpEvent(){
     isMousePressed = false;
 }

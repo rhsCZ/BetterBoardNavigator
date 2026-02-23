@@ -37,6 +37,6 @@ async function loadLocalModules(pyodide) {
         await copyModuleToVirtualMemory(pyodide, moduleName);
     }
 
-    hideLoadingDots();
-    setLoadingScreenMessage("Application initialized. Load a schematic file!")
+    LoadingScreen.hideLoadingDots();
+    LoadingScreen.setLoadingScreenMessage("Application initialized. Load a schematic file!")
 }

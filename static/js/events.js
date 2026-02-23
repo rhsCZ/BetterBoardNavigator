@@ -1,5 +1,3 @@
-let blockKeyboardForSDL = false;
-
 class EventHandler{
     static compensateUserDevicePixelRatio(){
         const dpr = window.devicePixelRatio;

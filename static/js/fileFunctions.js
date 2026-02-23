@@ -2,8 +2,8 @@ function openAndLoadCadFile(pyodide, file) {
     var fileName = `/${file.name}`;
     const reader = new FileReader();
 
-    setLoadingScreenMessage("Processing schematic file");
-    showLoadingDots();
+    LoadingScreen.setLoadingScreenMessage("Processing schematic file");
+    LoadingScreen.showLoadingDots();
 
     reader.onload = (event) => {
         const fileContent = event.target.result;
@@ -45,8 +45,8 @@ function openAndLoadCadFile(pyodide, file) {
         const toggleOutlinesButton = globalInstancesMap.getToggleOutlinesButton();
         toggleOutlinesButton.classList.add("button-selected");
 
-        hideLoadingDots();
-        hideLoadingScreen();
+        LoadingScreen.hideLoadingDots();
+        LoadingScreen.hideLoadingScreen();
     }
     reader.readAsArrayBuffer(file);
 }
