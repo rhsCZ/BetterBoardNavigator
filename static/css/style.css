@@ -44,9 +44,11 @@ ul{
 }
 
 li{
-    white-space: nowrap;
-    margin-left: 20px;
+    display:block;
+    white-space: normal;
+    margin: 0 10px;
     cursor: pointer;
+    font-size: 0.9em;
 }
 
 p{
@@ -275,6 +277,15 @@ canvas{
     height: 100%;
 }
 
+.tree-view li > span {
+    display: block;
+    word-break: break-all;     
+    line-height: 1.4em;
+    padding-right: 10px;
+    padding-left: 1.2em;
+    text-indent: -1.2em;
+}
+
 .treeview-hidden{
     display: none;
 }
@@ -386,9 +397,10 @@ canvas{
 
 .close {
     color: var(--COLOR-TEXT-MAIN);
+    float: right;
     font-size: 28px;
     font-weight: bold;
-    padding-right: 15px;
+    padding-right: 2%;
 }
 
 .close:hover,
