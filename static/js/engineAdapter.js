@@ -30,6 +30,10 @@ class EngineAdapter{
             if engine:
                 clickedXY = [int('${x}'), int('${y}')]
                 clickedComponents = engine.findComponentByClick(clickedXY, '${side}')
+            clickedComponents = []
+            if engine:
+                clickedXY = [int('${x}'), int('${y}')]
+                clickedComponents = engine.findComponentByClick(clickedXY, '${side}')
         `);
         return pyodide.globals.get("clickedComponents").toJs();
     }
@@ -48,7 +52,7 @@ class EngineAdapter{
 
         const x = event.offsetX; 
         const y = event.offsetY;
-        const isZoomIn = event.deltaY < 0
+        const isZoomIn = event.deltaY < 0;
         
         const side = sideHandler.currentSide();
         pyodide.runPythonAsync(`
@@ -120,7 +124,6 @@ class EngineAdapter{
             engine.clearFindComponentByNameInterface(SURFACE, '${side}')
             pygame.display.flip()
         `);
-        WidgetAdapter.resetSelectedComponentsWidgets();
     }
 
     static componentInScreenCenter(componentName){
@@ -188,7 +191,7 @@ class EngineAdapter{
         `);
     }
 
-    static findComponentByName(componentName, isSelectionModeSingle){
+    static findComponentByName(componentName){
         const sideHandler = globalInstancesMap.sideHandler;
         
         const componentSide = sideHandler.getSideOfComponent(componentName);
@@ -200,7 +203,7 @@ class EngineAdapter{
         pyodide.runPython(`
             if '${isSelectionModeSingle}' == 'true':
                 engine.clearFindComponentByNameInterface(SURFACE, '${side}')
-
+                
             engine.findComponentByNameInterface(SURFACE, '${componentName}', '${side}')
             pygame.display.flip()
         `);

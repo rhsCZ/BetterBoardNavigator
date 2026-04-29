@@ -21,7 +21,6 @@ class ModalBox{
     }
 
     close(){
-        this.header.innerText = "";
         this.parentContainer.style.display = "none";
     }
 
@@ -32,7 +31,7 @@ class ModalBox{
 
 class ModalSubmit extends ModalBox{
     constructor(parentContainer, closeSpan, header, textInput, submitButton){
-        super(parentContainer, closeSpan, header)
+        super(parentContainer, closeSpan, header);
         this.textInput = textInput;
         this.submitButton = submitButton;
     }
@@ -50,14 +49,15 @@ class ModalSubmit extends ModalBox{
     }
 
     close(){
-        this.textInput.value = "";
+        this.textInput.value = "";        
+        this.header.innerText = "";
         super.close();
     }
 }
 
 class ModalHelp extends ModalBox{
     constructor(parentContainer, closeSpan, header, button){
-        super(parentContainer, closeSpan, header)
+        super(parentContainer, closeSpan, header);
         this.button = button;
         this.parameterConstant = null;
         this.header.innerText = "Better Board Navigator Help";
@@ -73,9 +73,5 @@ class ModalHelp extends ModalBox{
             this.buttonEvent(this.parameterConstant);
             this.close();
         });
-    }
-
-    close(){
-        this.parentContainer.style.display = "none";
     }
 }

@@ -43,14 +43,12 @@ class EventHandler{
         canvas.height = canvasParent.clientHeight;
     }
 
-    static loadFile(event, loadedFileName){
-        const file = event.target.files[0];
-        if (file) {
-            removePreviousFileFromFS(pyodide, loadedFileName);
-            openAndLoadCadFile(pyodide, file);
-            EventHandler.enableButtons();
-            return file.name;
-        }
+    static loadCadFile(loadedFileName){
+        CadFileLoader.removePreviousFileFromFS(pyodide, loadedFileName);
+        CadFileLoader.openAndLoadCadFile(pyodide, loadedFileName);
+        EventHandler.enableButtons();
+        
+        return loadedFileName.name;
     }
 
     static enableButtons(){
@@ -61,11 +59,11 @@ class EventHandler{
         globalInstancesMap.resetViewButton.disabled = false;
         globalInstancesMap.areaFromComponentsButton.disabled = false;
         globalInstancesMap.preserveComponentMarkersButton.disabled = false;
-        globalInstancesMap.clearMarkersButton.disabled = false;
         globalInstancesMap.unselectNetButton.disabled = false;
         globalInstancesMap.findComponentUsingNameButton.disabled = false;
         globalInstancesMap.prefixComponentsButton.disabled = false;
         globalInstancesMap.unselectPrefixComponentsButton.disabled = false;
+        globalInstancesMap.unselectAllComponentsButton.disabled = false;
     }
 
     static preserveComponentMarkers(isSelectionModeSingle){
@@ -122,21 +120,18 @@ class EventHandler{
 
     static showHelpModalBox(){
         const modalHelp = globalInstancesMap.modalHelp;
-        HelpModalAdapter.generateModalBox(modalHelp)
+        SimpleModalAdapter.generateModalBox(modalHelp);
     }
 
     static loadDemoFile(loadedFileName){
         fetch("./static/cad_files/demo.cad")
             .then(response => response.blob())
             .then(blob => {
-                const file = new File([blob], "demo.cad", {type: "application/octet-stream"});
-                const simulatedEvent = {
-                    target: {
-                        files: [file]
-                    }
-                };
-                EventHandler.loadFile(simulatedEvent, loadedFileName);
-                return "demo.cad"
-            });
+                const demofile = new File([blob], "demo.cad", {type: "application/octet-stream"});
+                EventHandler.loadCadFile(demofile);                   
+                
+                return "demo.cad";
+            }
+        );
     }
 }

@@ -62,7 +62,6 @@ p{
 }
 
 
-
 #load-file-input{
     display: none;
 }
@@ -99,7 +98,7 @@ p{
     border-color: var(--COLOR-BUTTON-BORDER);
     color: var(--COLOR-BUTTON-TEXT);
     margin: 0.2em 0.2em;
-    border-radius: 0.4em;    
+    border-radius: 0.4em;
     white-space: pre-line;
 }
 
@@ -242,6 +241,10 @@ canvas{
     cursor: pointer;
 }
 
+#item-left-top .table-body div{
+    cursor: default;
+}
+
 .table-row{
     display: grid;
     grid-template-columns: 1fr 2fr;
@@ -252,7 +255,7 @@ canvas{
 }
 
 #item-left-top .table-row{
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 1.5fr 2fr;
 }
 
 #item-left-top .table-body{
@@ -343,6 +346,16 @@ canvas{
     height: 700px;
 }
 
+.wide-modal .modal-content-layout{
+    width: min(850px, calc(100vw - 40px));
+    height: min(850px, calc(100vh - 40px));
+}
+
+.wider-modal .modal-content-layout{
+    width: min(1300px, calc(100vw - 40px));
+    height: min(1300px, calc(100vh - 40px));
+}
+
 .modal-head{
     background-color: var(--COLOR-ITEM-HEADER-BG);
     margin-top: 0;
@@ -368,7 +381,18 @@ canvas{
     display: flex;
     flex-direction: column;
     overflow: auto;
+    flex: 1;
 }
+
+#part-number-searcher-modal .modal-main {
+    padding: 0;
+}
+
+#board-history-modal .modal-main {
+    padding: 0;
+}
+
+
 
 .modal-main h3{
     text-align: center;
@@ -377,6 +401,13 @@ canvas{
 .modal-main .new-line{
     font-size: 1em;
 }
+
+.modal-main iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
 
 
 #text-modal .modal-main{
@@ -407,7 +438,6 @@ canvas{
 
 .close {
     color: var(--COLOR-TEXT-MAIN);
-    float: right;
     font-size: 28px;
     font-weight: bold;
     padding-right: 15px;
@@ -419,6 +449,21 @@ canvas{
     text-decoration: none;
     cursor: pointer;
 }
+
+.flex-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.flex-list-item p {
+    margin: 0;
+    flex-grow: 1;
+    word-break: break-all;
+}
+
+
+
 
 #clicked-components{
     display: flex;

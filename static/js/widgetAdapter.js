@@ -13,7 +13,12 @@ class WidgetAdapter{
         const preserveComponentMarkersButton = globalInstancesMap.preserveComponentMarkersButton;
         
         allComponentsList.unselectAllItems();
-        WidgetAdapter.setSelectionModeToSingle();
+        EngineAdapter.clearMarkers();
+
+        // change selection mode to single component
+        if (!isSelectionModeSingle){
+            isSelectionModeSingle = EventHandler.preserveComponentMarkers(isSelectionModeSingle);
+        };
 
         pinoutTable.unselectCurrentRows();
         pinoutTable.clearBody();
@@ -21,7 +26,7 @@ class WidgetAdapter{
         SpanListAdapter.clearSpanList(clickedComponentSpanList);
         selectedComponentSpan.innerText = "";
 
-        EventHandler.forcedUntoggleButton(preserveComponentMarkersButton)
+        EventHandler.forcedUntoggleButton(preserveComponentMarkersButton);
     }
 
     static resetSelectedNet(){
@@ -42,20 +47,15 @@ class WidgetAdapter{
 
         selectedComponentSpan.innerText = "";
     }
-
-    static setSelectionModeToSingle() {
-        const allComponentsList = globalInstancesMap.allComponentsList
-
-        isSelectionModeSingle = true;
-        allComponentsList.selectionMode = "single";
-    }
 }
+
+
 
 class SpanListAdapter{
     static initSpanList(parentContainer){
         let spanList =  new DynamicSpanList(parentContainer);
         spanList.clickEvent = SpanListAdapter.onClickEventSpanList;
-        return spanList
+        return spanList;
     }
 
     static generateSpanList(clickedComponentsList){
@@ -76,12 +76,9 @@ class SpanListAdapter{
     }
 }
 
-class DynamicSelectableListAdapter{
-    static initDynamicSelectableList(parentContainer){
-        let listInstance = new DynamicSelectableList(parentContainer);
-        return listInstance
-    }
 
+
+class DynamicSelectableListAdapter{
     static generateList(listInstance, dataList, onClickEvent, selectionMode){
         listInstance.elementsList = dataList;
         listInstance.callbackEventFunction = onClickEvent;
@@ -95,9 +92,15 @@ class DynamicSelectableListAdapter{
 
     static selectItemFromListEvent(itemElement){
         const itemName = DynamicSelectableListAdapter.generatePinoutTableForComponent(itemElement);
-        EngineAdapter.findComponentByName(itemName, isSelectionModeSingle);
+
+        const markedComponentsList = globalInstancesMap.markedComponentsList;
+        if (markedComponentsList.includes(itemName)){
+            return;
+        }
+
+        EngineAdapter.findComponentByName(itemName);
         EngineAdapter.componentInScreenCenter(itemName);
-        DynamicSelectableListAdapter.generateMarkedComponentsList()
+        DynamicSelectableListAdapter.generateMarkedComponentsList();
     }
 
     static onClickItemEvent(itemElement){
@@ -106,9 +109,9 @@ class DynamicSelectableListAdapter{
     }
 
     static generatePinoutTableForComponent(itemElement){
-        let itemName = itemElement.textContent;
+        let itemName = itemElement.getAttribute("data-key");
         PinoutTableAdapter.generatePinoutTable(itemName);
-        return itemName
+        return itemName;
     }
 
     static generateMarkedComponentsList(){
@@ -119,8 +122,19 @@ class DynamicSelectableListAdapter{
         `);
         const componentsList = pyodide.globals.get("componentsList").toJs();
         DynamicSelectableListAdapter.generateList(markedComponentsList, componentsList, DynamicSelectableListAdapter.onClickItemEvent, "no");
+        markedComponentsList.onCloseIconClick = DynamicSelectableListAdapter.unselectComponentAndRemoveItemFromList;
+    }
+
+    static unselectComponentAndRemoveItemFromList(componentName){
+        EngineAdapter.findComponentByName(componentName);
+        DynamicSelectableListAdapter.generateMarkedComponentsList();
+
+        const allComponentsList = globalInstancesMap.allComponentsList;
+        allComponentsList.unselectItemByName(componentName);
     }
 }
+
+
 
 class PinoutTableAdapter{
     static initPinoutTable(parentContainer){
@@ -162,9 +176,11 @@ class PinoutTableAdapter{
     static clearBody(){
         const pinoutTable = globalInstancesMap.pinoutTable;
 
-        pinoutTable.clearBody()
+        pinoutTable.clearBody();
     }
 }
+
+
 
 class TreeViewAdapter{
     static initTreeView(parentContainer){
@@ -193,6 +209,10 @@ class TreeViewAdapter{
         }
     }
 
+    static selectNetComponentByName(componentName){
+        EngineAdapter.selectNetComponentByName(componentName);
+    }
+
     static resetTreeview(){
         const netsTreeview = globalInstancesMap.netsTreeview;
         
@@ -200,6 +220,8 @@ class TreeViewAdapter{
         netsTreeview.unselectCurrentItem();
     }
 }
+
+
 
 class InputModalBoxAdapter{
     static generateModalBox(modalboxInstance, headerString, submitEvent){
@@ -210,19 +232,28 @@ class InputModalBoxAdapter{
 
     static getComponentNameFromInput(componentName){
         const modalBoxComponentName = componentName.toUpperCase();
-        const isComponentExist = EngineAdapter.findComponentByName(modalBoxComponentName, isSelectionModeSingle);
-        if (isComponentExist){            
-            const allComponentsList = globalInstancesMap.allComponentsList;
+        const isComponentExist = EngineAdapter.findComponentByName(modalBoxComponentName);
 
-            if (isSelectionModeSingle) {
-                allComponentsList.unselectAllItems();
-            }
-            allComponentsList.selectItemByName(modalBoxComponentName);
-
-            EngineAdapter.componentInScreenCenter(modalBoxComponentName);
-            PinoutTableAdapter.generatePinoutTable(modalBoxComponentName);
-            DynamicSelectableListAdapter.generateMarkedComponentsList();
+        if (!isComponentExist){ 
+            return;
         }
+
+        const markedComponentsList = globalInstancesMap.markedComponentsList;
+        if (markedComponentsList.includes(modalBoxComponentName)){
+            return;
+        }
+
+
+        const allComponentsList = globalInstancesMap.allComponentsList;
+
+        if (isSelectionModeSingle) {
+            allComponentsList.unselectAllItems();
+        }
+        allComponentsList.selectItemByName(modalBoxComponentName);
+
+        EngineAdapter.componentInScreenCenter(modalBoxComponentName);
+        PinoutTableAdapter.generatePinoutTable(modalBoxComponentName);
+        DynamicSelectableListAdapter.generateMarkedComponentsList();
     }
 
     static getCommonPrefixFromInput(commonPrefix){
@@ -236,7 +267,9 @@ class InputModalBoxAdapter{
     }
 }
 
-class HelpModalAdapter{
+
+
+class SimpleModalAdapter{
     static generateModalBox(modalboxInstance){
         modalboxInstance.show();
     }

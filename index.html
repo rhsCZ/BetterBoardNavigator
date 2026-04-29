@@ -14,7 +14,7 @@
     <script type="text/javascript" src="./static/js/main.js"></script>
     <script type="text/javascript" src="./static/js/loadingScreen.js"></script>
     <script type="text/javascript" src="./static/js/pythonConfigurator.js"></script>    
-    <script type="text/javascript" src="./static/js/fileFunctions.js"></script>
+    <script type="text/javascript" src="./static/js/cadFileLoader.js"></script>
     <script type="text/javascript" src="./static/js/sideHandler.js"></script>
     <script type="text/javascript" src="./static/js/eventHandler.js"></script>
     <script type="text/javascript" src="./static/js/mouseEventHandler.js"></script>
@@ -41,10 +41,6 @@
         <div class="buttons-flexbox">
             <button type="button" class="main-button" id="default-view-button" disabled="true">Default view</button>
             <button type="button" class="main-button" id="components-area-button" disabled="true">Area from components</button>
-        </div>
-        <div class="buttons-flexbox">
-            <button type="button" class="main-button" id="unselect-components-button" disabled="true">Clear component markers</button>
-            <button type="button" class="main-button" id="unselect-net-button" disabled="true">Unselect net</button>
         </div>
         <div class="buttons-flexbox">
             <button type="button" class="main-button" id="prefix-components-button" disabled="true">Prefix components</button>
@@ -90,12 +86,18 @@
                 <p class="section-title">Marked components</p>
             </div>
             <div class="scrollable-list" id="scrollable-marked-components-list"></div>
+            <div class="buttons-flexbox vertical-buttons-flexbox">       
+                <button type="button" class="main-button" id="unselect-all-components-button" disabled="true">Clear component markers</button>
+            </div>
         </div>
         <div id="item-right-bottom" class="functionality-container">
             <div class="item-header"> 
                 <p class="section-title">Nets list</p>
             </div>
             <div id="net-treeview" class="tree-view"></div>
+            <div class="buttons-flexbox vertical-buttons-flexbox">
+                <button type="button" class="main-button" id="unselect-net-button" disabled="true">Unselect net</button>
+            </div>
         </div>
         <div id="item-center" class="functionality-container">
             <div id="loading-screen" class="app-loading">
