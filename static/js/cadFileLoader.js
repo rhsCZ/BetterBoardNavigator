@@ -6,25 +6,25 @@ class CadFileLoader{
         LoadingScreen.setLoadingScreenMessage("Processing schematic file");
         LoadingScreen.showLoadingDots();
 
-        reader.onload = (event) => {
+        reader.onload = async (event) => {
             const fileContent = event.target.result;
             pyodide.FS.writeFile(fileName, new Uint8Array(fileContent));
             
             const sideHandler = globalInstancesMap.sideHandler;
             const side = sideHandler.currentSide();
 
-            pyodide.runPython(`
+            await pyodide.runPythonAsync(`
                 from boardWrapper import BoardWrapper
                 from pygameDrawBoard import DrawBoardEngine
 
-                cadFileName = '${fileName}'
+                cadFileName = "${fileName}"
 
                 wrapper = BoardWrapper(canvas.width, canvas.height)
                 wrapper.loadAndSetBoardFromFilePath(cadFileName)
                 boardInstance = wrapper.normalizeBoard()
 
                 pygame.init()
-                pygame.display.set_caption('Better Board Navigator')
+                pygame.display.set_caption("Better Board Navigator")
 
                 SURFACE = pygame.display.set_mode((canvas.width, canvas.height))
 
@@ -34,14 +34,18 @@ class CadFileLoader{
                 allComponents = engine.getComponents()
                 netsDict = engine.getNets()
 
-                engine.drawAndBlitInterface(SURFACE, '${side}')
+                engine.drawChunksAndBlitInterface(SURFACE, "${side}")
                 pygame.display.flip()
+
+                mostCommonPrefix = engine.getMostCommonPrefix()
             `);
             const allComponents = pyodide.globals.get("allComponents").toJs();
             DynamicSelectableListAdapter.generateList(globalInstancesMap.allComponentsList, allComponents, DynamicSelectableListAdapter.selectItemFromListEvent, "single");
 
             const netsMap = pyodide.globals.get("netsDict").toJs();
             TreeViewAdapter.generateTreeView(netsMap);
+            
+            mostCommonPrefix = pyodide.globals.get("mostCommonPrefix");
 
             WidgetAdapter.resetWidgets();
 

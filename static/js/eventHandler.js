@@ -4,7 +4,7 @@ class EventHandler{
         const dynamicVH = dpr * 100;
 
         document.body.style.zoom = `${Math.floor(1 / dpr * 100)}%`;
-        document.documentElement.style.setProperty('--GRID-CONTAINER-HEIGHT', dynamicVH + 'vh');
+        document.documentElement.style.setProperty("--GRID-CONTAINER-HEIGHT", dynamicVH + "vh");
     }
 
     static keyDown(event, isTextModalInputFocused){
@@ -43,9 +43,12 @@ class EventHandler{
         canvas.height = canvasParent.clientHeight;
     }
 
-    static loadCadFile(loadedFileName){
+   static async loadCadFile(loadedFileName){
+        const partNumberSearcherIframe = globalInstancesMap.partNumberSearcherIframe;
+        const partNumberSearcherButton = globalInstancesMap.partNumberSearcherButton;
+
         CadFileLoader.removePreviousFileFromFS(pyodide, loadedFileName);
-        CadFileLoader.openAndLoadCadFile(pyodide, loadedFileName);
+        await CadFileLoader.openAndLoadCadFile(pyodide, loadedFileName);
         EventHandler.enableButtons();
         
         return loadedFileName.name;
@@ -56,6 +59,7 @@ class EventHandler{
         globalInstancesMap.rotateButton.disabled = false;
         globalInstancesMap.mirrorSideButton.disabled = false;
         globalInstancesMap.toggleOutlinesButton.disabled = false;
+        globalInstancesMap.toggleComponentNamesButton.disabled = false;
         globalInstancesMap.resetViewButton.disabled = false;
         globalInstancesMap.areaFromComponentsButton.disabled = false;
         globalInstancesMap.preserveComponentMarkersButton.disabled = false;
@@ -77,32 +81,39 @@ class EventHandler{
         return isSelectionModeSingle;
     }
 
-    static unselectNet(){
-        EngineAdapter.unselectNet();
+    static async toggleComponentNames(){
+        const toggleComponentNamesButton = globalInstancesMap.toggleComponentNamesButton;
+
+        await EngineAdapter.toggleComponentNames();
+        EventHandler.toggleButton(toggleComponentNamesButton);
+    }
+
+    static async unselectNet(){
+        await EngineAdapter.unselectNet();
         WidgetAdapter.resetSelectedNet();
     }
 
     static findComponentUsingName(){
         const modalSubmit = globalInstancesMap.modalSubmit;
-        InputModalBoxAdapter.generateModalBox(modalSubmit, "Nazwa komponentu", InputModalBoxAdapter.getComponentNameFromInput);
+        InputModalBoxAdapter.generateModalBox(modalSubmit, "Component name", InputModalBoxAdapter.getComponentNameFromInput);
     }
     
     static showCommonPrefixComponents(){
         const modalSubmit = globalInstancesMap.modalSubmit;
-        InputModalBoxAdapter.generateModalBox(modalSubmit, "Prefix", InputModalBoxAdapter.getCommonPrefixFromInput);
+        InputModalBoxAdapter.generateModalBox(modalSubmit, "Common Prefix", InputModalBoxAdapter.getCommonPrefixFromInput);
     }
     
-    static hideCommonPrefixComponents(){
+    static async hideCommonPrefixComponents(){
         const commonPrefixSpan = globalInstancesMap.commonPrefixSpan;
         
-        EngineAdapter.hideCommonPrefixComponents();
+        await EngineAdapter.hideCommonPrefixComponents();
         commonPrefixSpan.innerText = "";
     }
 
-    static toggleOutlines(){
+    static async toggleOutlines(){
         const toggleOutlinesButton = globalInstancesMap.toggleOutlinesButton;
 
-        EngineAdapter.toggleOutlines();
+        await EngineAdapter.toggleOutlines();
         EventHandler.toggleButton(toggleOutlinesButton);
     }
 
@@ -120,15 +131,17 @@ class EventHandler{
 
     static showHelpModalBox(){
         const modalHelp = globalInstancesMap.modalHelp;
+
+        modalHelp.setHeader("Better Board Navigator - help");
         SimpleModalAdapter.generateModalBox(modalHelp);
     }
 
     static loadDemoFile(loadedFileName){
         fetch("./static/cad_files/demo.cad")
             .then(response => response.blob())
-            .then(blob => {
+            .then(async blob => {
                 const demofile = new File([blob], "demo.cad", {type: "application/octet-stream"});
-                EventHandler.loadCadFile(demofile);                   
+                await EventHandler.loadCadFile(demofile);                   
                 
                 return "demo.cad";
             }

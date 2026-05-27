@@ -1,18 +1,17 @@
 function main(){
-    LoadingScreen.showLoadingScreen();
-    LoadingScreen.showLoadingDots();
-
     EventHandler.compensateUserDevicePixelRatio();
-
 
     document.addEventListener("DOMContentLoaded", async () => {
         _bindHtmlElements();
+
+        LoadingScreen.showLoadingScreen();
+        LoadingScreen.showLoadingDots();
 
         await _initPyodide();
             
         _initWidgetClasses();
         _bindMouseAndKeyboardEvents();
-        _bindLoadFilesEvents();
+        await _bindLoadFileEvents();
         _bindOnClickEvents();
     });
 }
@@ -27,6 +26,7 @@ function _bindHtmlElements(){
     globalInstancesMap.changeSideButton = document.getElementById("change-side-button");
     globalInstancesMap.mirrorSideButton = document.getElementById("mirror-side-button");
     globalInstancesMap.toggleOutlinesButton = document.getElementById("toggle-outlines-button");
+    globalInstancesMap.toggleComponentNamesButton = document.getElementById("toggle-component-names-button");
 
     globalInstancesMap.resetViewButton = document.getElementById("default-view-button");    
     globalInstancesMap.areaFromComponentsButton = document.getElementById("components-area-button");
@@ -77,6 +77,11 @@ function _bindHtmlElements(){
     globalInstancesMap.helpModalCloseSpan = document.getElementById("help-modal-close-span");
     globalInstancesMap.helpModalHeader = document.getElementById("help-modal-header");
     globalInstancesMap.showDemoBoardButton = document.getElementById("show-demo-board-button");
+
+    // loading screen
+    globalInstancesMap.loadingScreenContainer = document.getElementById("loading-screen");
+    globalInstancesMap.loadingScreenDots = document.getElementById("loading-dots");
+    globalInstancesMap.loadingScreenText = document.getElementById("loading-text");
 }
 
 function _initWidgetClasses(){
@@ -89,14 +94,12 @@ function _initWidgetClasses(){
     );
     globalInstancesMap.modalSubmit = modalSubmit;
     
-    const modalHelp = new ModalHelp(
+    const modalHelp = new ButtonModal(
         globalInstancesMap.helpModalContainer, 
         globalInstancesMap.helpModalCloseSpan, 
         globalInstancesMap.helpModalHeader, 
         globalInstancesMap.showDemoBoardButton
     );
-    modalHelp.eventParameter = loadedFileName;
-    modalHelp.setButtonEvent(EventHandler.loadDemoFile);
     globalInstancesMap.modalHelp = modalHelp;
 
     
@@ -164,18 +167,18 @@ function _bindMouseAndKeyboardEvents(){
     globalInstancesMap.canvas.addEventListener("wheel", EngineAdapter.zoomInOut);
 }
 
-function _bindLoadFilesEvents(){
+function _bindLoadFileEvents(){
     globalInstancesMap.loadFileButton.addEventListener("click", () => {
             globalInstancesMap.loadFilesInput.click();
     });
-    globalInstancesMap.loadFilesInput.addEventListener("change", (event) => {
+    globalInstancesMap.loadFilesInput.addEventListener("change", async (event) => {
         const files = [...event.target.files];
 
         const cadFile = files.find(f =>
             /\.(cad|gcd|tgz|zip)$/i.test(f.name)
         );
 
-        globalInstancesMap.loadedFileName = EventHandler.loadCadFile(cadFile);
+        globalInstancesMap.loadedFileName = await EventHandler.loadCadFile(cadFile);
     });
 }
 
@@ -189,12 +192,17 @@ function _bindOnClickEvents(){
     globalInstancesMap.preserveComponentMarkersButton.addEventListener("click", () => {
         isSelectionModeSingle = EventHandler.preserveComponentMarkers(isSelectionModeSingle);
     });
+    globalInstancesMap.toggleComponentNamesButton.addEventListener("click", EventHandler.toggleComponentNames);
     globalInstancesMap.unselectNetButton.addEventListener("click", EventHandler.unselectNet);            
     globalInstancesMap.findComponentUsingNameButton.addEventListener("click", EventHandler.findComponentUsingName);
     globalInstancesMap.prefixComponentsButton.addEventListener("click", EventHandler.showCommonPrefixComponents);
     globalInstancesMap.unselectPrefixComponentsButton.addEventListener("click", EventHandler.hideCommonPrefixComponents);
     globalInstancesMap.helpButton.addEventListener("click", EventHandler.showHelpModalBox);
     globalInstancesMap.unselectAllComponentsButton.addEventListener("click", WidgetAdapter.resetSelectedComponentsWidgets);
+
+    globalInstancesMap.showDemoBoardButton.addEventListener("click", () => {
+        EventHandler.loadDemoFile(loadedFileName);
+    });
     
     globalInstancesMap.textModalInput.addEventListener("focus", () => {
         isTextModalInputFocused = true;

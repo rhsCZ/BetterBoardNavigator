@@ -17,15 +17,15 @@ class SideHandler{
         return this.currentSide();
     }
 
-    getSideOfComponent(componentName){
-        pyodide.runPython(`
-            componentSide = engine.getSideOfComponent('${componentName}')
+    async getSideOfComponent(componentName){
+        await pyodide.runPythonAsync(`
+            componentSide = engine.getSideOfComponent("${componentName}")
         `);
         return pyodide.globals.get("componentSide");
     }
 
-    setComponentSideAsCurrentSide(componentName){
-        const componentSide = this.getSideOfComponent(componentName);
+    async setComponentSideAsCurrentSide(componentName){
+        const componentSide = await this.getSideOfComponent(componentName);
         if (componentSide != this.currentSide()){
             return this.changeSide();
         }

@@ -10,15 +10,23 @@ class Board:
         self.nets = []
         self.sideGroupedComponents = {}
         self.commonTypeGroupedComponents = {}
+        self.mostCommonPrefix = ''
     
     def setArea(self, bottomLeftPoint:gobj.Point, topRightPoint:gobj.Point):
-        self.area = [bottomLeftPoint, topRightPoint]
-    
+        x0, y0 = bottomLeftPoint.getXY()
+        x1, y1 = topRightPoint.getXY()       
+
+        bottomRightPoint = gobj.Point(x1, y0)
+        topLeftPoint = gobj.Point(x0, y1)
+        self.area = [bottomLeftPoint, bottomRightPoint, topRightPoint, topLeftPoint]
+
     def getArea(self) -> list[gobj.Point]:
-        return self.area
+        bottomLeftPoint, topRightPoint = gobj.getDefaultBottomLeftTopRightPoints()
+        bottomLeftPoint, topRightPoint = gobj.updateBottomLeftTopRightPoints([bottomLeftPoint, topRightPoint], self.area)
+        return bottomLeftPoint, topRightPoint
 
     def getWidthHeight(self) -> list[float|int, float|int]:
-        xBL, yBL, xTR, yTR = Shape.getAreaAsXYXY(self.area)
+        xBL, yBL, xTR, yTR = Shape.getAreaAsXYXY(self.getArea())
         return abs(xTR - xBL), abs(yTR - yBL)
     
     def setOutlines(self, outlinesList:list[gobj.Point|gobj.Arc]):
@@ -53,22 +61,29 @@ class Board:
         self.sideGroupedComponents = sideGroupedComponents
         self.commonTypeGroupedComponents = commonTypeGroupedComponents
 
+        countedPrefixes = {}
+        for sideGroups in commonTypeGroupedComponents.values():
+            for prefixGroupName, prefixGroupElements in sideGroups.items():
+                countedPrefixes.setdefault(prefixGroupName, 0)
+                countedPrefixes[prefixGroupName] += len(prefixGroupElements)
+        
+        self.mostCommonPrefix = max(countedPrefixes, key=countedPrefixes.get)
+
     def getSideGroupedComponents(self) -> dict:
         return self.sideGroupedComponents
     
     def getCommonTypeGroupedComponents(self) -> dict:
         return self.commonTypeGroupedComponents
     
+    def getMostCommonPrefix(self) -> str:
+        return self.mostCommonPrefix
+    
     def calculateAreaFromComponents(self) -> tuple[gobj.Point, gobj.Point]:
         bottomLeftPoint, topRightPoint = gobj.getDefaultBottomLeftTopRightPoints()
-        for _, componentInstance in self.components.items():
+        for componentInstance in self.components.values():
             for point in componentInstance.getArea():
                 bottomLeftPoint, topRightPoint = gobj.Point.minXY_maxXYCoords(bottomLeftPoint, topRightPoint, point)
         
-        SCALE_DOWN_FACTOR = 0.97
-        SCALE_UP_FACTOR = 1.03
-        bottomLeftPoint.scaleInPlace(SCALE_DOWN_FACTOR)
-        topRightPoint.scaleInPlace(SCALE_UP_FACTOR)
         return bottomLeftPoint, topRightPoint
     
     def calculateAreaFromOutlines(self) -> tuple[gobj.Point, gobj.Point]:
@@ -86,20 +101,12 @@ class Board:
             rotateInPlace -> rotationPoint:geometryObjects.Point, angleDeg:int|float
             scaleInPlace -> factor:int|float
         '''
-        components = [componentInstance for _, componentInstance in self.components.items()]
+        components = [componentInstance for componentInstance in self.components.values()]
         objList = self.area + self.outlines + components
+
         for obj in objList:
             func = getattr(obj, functionName)
             func(*args)
-        
-        if functionName == 'rotateInPlace':
-            bottomLeftPoint, topRightPoint = self.normalizeArea(self.area)
-            self.setArea(bottomLeftPoint, topRightPoint)
-    
-    def normalizeArea(self, area:list[gobj.Point, gobj.Point]) -> list[gobj.Point, gobj.Point]:
-        bottomLeftPoint, topRightPoint = gobj.getDefaultBottomLeftTopRightPoints()
-        bottomLeftPoint, topRightPoint = gobj.updateBottomLeftTopRightPoints([bottomLeftPoint, topRightPoint], area)
-        return bottomLeftPoint, topRightPoint
     
     def findComponentByCoords(self, clickedPoint:gobj.Point, side:str) -> list[str]:
         result = []

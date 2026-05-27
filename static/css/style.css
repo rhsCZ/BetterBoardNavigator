@@ -89,6 +89,8 @@ p{
 
 .vertical-buttons-flexbox{
     flex-direction: column;
+    justify-content: center;
+    gap: 5px;
 }
 
 .main-button{

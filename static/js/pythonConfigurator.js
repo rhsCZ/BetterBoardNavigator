@@ -2,12 +2,12 @@ class PythonConfigurator{
     static async configurePythonPath(pyodide){
         await pyodide.runPythonAsync(`
             import sys
-            sys.path.append('/')
+            sys.path.append("/")
 
             engine = None
 
             from js import document
-            canvas = document.getElementById('canvas')
+            canvas = document.getElementById("canvas")
         `);
     }
 

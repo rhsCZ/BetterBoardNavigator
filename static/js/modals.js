@@ -55,22 +55,12 @@ class ModalSubmit extends ModalBox{
     }
 }
 
-class ModalHelp extends ModalBox{
+class ButtonModal extends ModalBox{
     constructor(parentContainer, closeSpan, header, button){
         super(parentContainer, closeSpan, header);
         this.button = button;
-        this.parameterConstant = null;
-        this.header.innerText = "Better Board Navigator Help";
-    }
 
-    set eventParameter(parameter){
-        this.parameterConstant = parameter;
-    }
-
-    setButtonEvent(eventFunction){
-        this.buttonEvent = eventFunction;
-        this.button.addEventListener("click", () => {
-            this.buttonEvent(this.parameterConstant);
+        this.button.addEventListener("click",() => {
             this.close();
         });
     }

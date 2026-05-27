@@ -98,6 +98,12 @@ class AbstractBaseShape(ABC):
     @abstractmethod
     def getPoints(self):
         pass
+
+    def getArea(self) -> tuple[Point, Point]:
+        points = self.getPoints()
+        bottomLeftPoint, topRightPoint = getDefaultBottomLeftTopRightPoints()
+        bottomLeftPoint, topRightPoint = updateBottomLeftTopRightPoints((bottomLeftPoint, topRightPoint), points)
+        return bottomLeftPoint, topRightPoint
     
     def scaleInPlace(self, factor:float|int):
         for point in self.getPoints():
@@ -308,21 +314,21 @@ def getDefaultBottomLeftTopRightPoints() -> tuple[Point, Point]:
     return bottomLeftPoint, topRightPoint
 
 def updateBottomLeftTopRightPoints(bottomLeftTopRightPoints:tuple[Point, Point],  checkedPoints:list[Point]) -> tuple[Point, Point]:
-        bottomLeftPoint, topRightPoint = bottomLeftTopRightPoints
-        for point in checkedPoints:
-            bottomLeftPoint, topRightPoint = Point.minXY_maxXYCoords(bottomLeftPoint, topRightPoint, point)
-        return bottomLeftPoint, topRightPoint
+    bottomLeftPoint, topRightPoint = bottomLeftTopRightPoints
+    for point in checkedPoints:
+        bottomLeftPoint, topRightPoint = Point.minXY_maxXYCoords(bottomLeftPoint, topRightPoint, point)
+    return bottomLeftPoint, topRightPoint
 
 def getLineAndAreaFromNumArray(nums:list[str|float], bottomLeftPoint:Point, topRightPoint:Point) -> tuple[Line, Point, Point]:
-        x0, y0, x1, y1 = [floatOrNone(val) for val in nums]
-        startPoint = Point(x0, y0)
-        endPoint = Point(x1, y1)
+    x0, y0, x1, y1 = [floatOrNone(val) for val in nums]
+    startPoint = Point(x0, y0)
+    endPoint = Point(x1, y1)
 
-        checkedPoints = [startPoint, endPoint]
-        bottomLeftPoint, topRightPoint = updateBottomLeftTopRightPoints([bottomLeftPoint, topRightPoint], checkedPoints)
+    checkedPoints = [startPoint, endPoint]
+    bottomLeftPoint, topRightPoint = updateBottomLeftTopRightPoints([bottomLeftPoint, topRightPoint], checkedPoints)
 
-        lineInstance = Line(startPoint, endPoint)
-        return lineInstance, bottomLeftPoint, topRightPoint
+    lineInstance = Line(startPoint, endPoint)
+    return lineInstance, bottomLeftPoint, topRightPoint
 
 def getArcAndAreaFromValArray(nums:list[str|float], bottomLeftPoint:Point, topRightPoint:Point) -> tuple[Arc, Point, Point]:
     x0, y0, x1, y1, xCenter, yCenter = [floatOrNone(val) for val in nums]

@@ -37,6 +37,7 @@
             <button type="button" class="main-button" id="change-side-button" disabled="true">Change side</button>
             <button type="button" class="main-button" id="mirror-side-button" disabled="true">Mirror side</button>
             <button type="button" class="main-button" id="toggle-outlines-button" disabled="true">Board outlines</button>
+            <button type="button" class="main-button" id="toggle-component-names-button" disabled="true">Component names</button>
         </div>
         <div class="buttons-flexbox">
             <button type="button" class="main-button" id="default-view-button" disabled="true">Default view</button>
@@ -139,7 +140,7 @@
                 <input type="text" id="text-modal-input" placeholder="">
             </div>
             <div class="modal-footer">
-                <button class="main-button" id="text-modal-submit-text">Ok</button>
+                <button class="main-button" id="text-modal-submit-text-button">Ok</button>
             </div>
         </div>
     </div>
@@ -178,6 +179,9 @@
                 </p>
                 <p class="new-line">
                     <span class="highlighted-text">Board outlines</span> - shows/hides board outlines.
+                </p>
+                <p class="new-line">
+                    <span class="highlighted-text">Component names</span> - shows/hides component names.
                 </p>
                 <p class="new-line">
                     <span class="highlighted-text">Default view</span> - resets viewed board to initial state.
@@ -271,13 +275,13 @@
         let loadedFileName = "";
         let resizeTimeout = null;
         let isTextModalInputFocused = false;
+        let mostCommonPrefix = "";
         
         let loadingScreenInterval = null; 
 
         let isMousePressed = false;
         let isMouseClickedFirstTime = false;
         let isSelectionModeSingle = true;
-
     
         const globalInstancesMap = new GlobalInstancesMap();
         main();
