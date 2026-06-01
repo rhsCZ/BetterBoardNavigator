@@ -1,5 +1,5 @@
 class EventHandler{
-    static compensateUserDevicePixelRatio(){
+    static async compensateUserDevicePixelRatio(){
         const dpr = window.devicePixelRatio;
         const dynamicVH = dpr * 100;
 
@@ -44,9 +44,6 @@ class EventHandler{
     }
 
    static async loadCadFile(loadedFileName){
-        const partNumberSearcherIframe = globalInstancesMap.partNumberSearcherIframe;
-        const partNumberSearcherButton = globalInstancesMap.partNumberSearcherButton;
-
         CadFileLoader.removePreviousFileFromFS(pyodide, loadedFileName);
         await CadFileLoader.openAndLoadCadFile(pyodide, loadedFileName);
         EventHandler.enableButtons();

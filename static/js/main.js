@@ -1,23 +1,23 @@
-function main(){
-    EventHandler.compensateUserDevicePixelRatio();
+async function main(){
+    await EventHandler.compensateUserDevicePixelRatio();
 
     document.addEventListener("DOMContentLoaded", async () => {
-        _bindHtmlElements();
+        await _bindHtmlElements();
 
         LoadingScreen.showLoadingScreen();
         LoadingScreen.showLoadingDots();
 
         await _initPyodide();
             
-        _initWidgetClasses();
-        _bindMouseAndKeyboardEvents();
+        await _initWidgetClasses();
+        await _bindMouseAndKeyboardEvents();
         await _bindLoadFileEvents();
-        _bindOnClickEvents();
+        await _bindOnClickEvents();
     });
 }
 
 
-function _bindHtmlElements(){
+async function _bindHtmlElements(){
     // buttons row
     globalInstancesMap.loadFileButton = document.getElementById("load-file-button");
     globalInstancesMap.loadFilesInput = document.getElementById("load-file-input");
@@ -84,7 +84,7 @@ function _bindHtmlElements(){
     globalInstancesMap.loadingScreenText = document.getElementById("loading-text");
 }
 
-function _initWidgetClasses(){
+async function _initWidgetClasses(){
     const modalSubmit = new ModalSubmit(
         globalInstancesMap.textModalContainer, 
         globalInstancesMap.textModalCloseSpan, 
@@ -140,7 +140,7 @@ async function _initPyodide(){
     globalInstancesMap.helpButton.disabled = false;
 }
 
-function _bindMouseAndKeyboardEvents(){
+async function _bindMouseAndKeyboardEvents(){
     window.addEventListener("resize", EventHandler.windowResize);
 
         window.addEventListener("keydown", (event) =>{
@@ -167,14 +167,14 @@ function _bindMouseAndKeyboardEvents(){
     globalInstancesMap.canvas.addEventListener("wheel", EngineAdapter.zoomInOut);
 }
 
-function _bindLoadFileEvents(){
+async function _bindLoadFileEvents(){
     globalInstancesMap.loadFileButton.addEventListener("click", () => {
             globalInstancesMap.loadFilesInput.click();
     });
     globalInstancesMap.loadFilesInput.addEventListener("change", async (event) => {
         const files = [...event.target.files];
 
-        const cadFile = files.find(f =>
+        const cadFile = await files.find(f =>
             /\.(cad|gcd|tgz|zip)$/i.test(f.name)
         );
 
@@ -182,7 +182,7 @@ function _bindLoadFileEvents(){
     });
 }
 
-function _bindOnClickEvents(){
+async function _bindOnClickEvents(){
     globalInstancesMap.changeSideButton.addEventListener("click", EngineAdapter.changeSide);
     globalInstancesMap.rotateButton.addEventListener("click", EngineAdapter.rotateBoard);
     globalInstancesMap.mirrorSideButton.addEventListener("click", EngineAdapter.mirrorSide);
