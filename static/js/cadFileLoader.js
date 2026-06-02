@@ -1,18 +1,19 @@
 class CadFileLoader{
-    static openAndLoadCadFile(pyodide, file) {
+    static async openAndLoadCadFile(pyodide, file){
         const fileName = `/${file.name}`;
-        const reader = new FileReader();
-
+        
         LoadingScreen.setLoadingScreenMessage("Processing schematic file");
         LoadingScreen.showLoadingDots();
 
-        reader.onload = async (event) => {
-            const fileContent = event.target.result;
+        try {
+            const fileContent = await file.arrayBuffer();
+
             pyodide.FS.writeFile(fileName, new Uint8Array(fileContent));
             
             const sideHandler = globalInstancesMap.sideHandler;
             const side = sideHandler.currentSide();
 
+            
             await pyodide.runPythonAsync(`
                 from boardWrapper import BoardWrapper
                 from pygameDrawBoard import DrawBoardEngine
@@ -39,10 +40,16 @@ class CadFileLoader{
 
                 mostCommonPrefix = engine.getMostCommonPrefix()
             `);
-            const allComponents = pyodide.globals.get("allComponents").toJs();
+
+            const allComponentsProxy = pyodide.globals.get("allComponents");
+            const allComponents = allComponentsProxy.toJs();
+            allComponentsProxy.destroy();
+
             DynamicSelectableListAdapter.generateList(globalInstancesMap.allComponentsList, allComponents, DynamicSelectableListAdapter.selectItemFromListEvent, "single");
 
-            const netsMap = pyodide.globals.get("netsDict").toJs();
+            const netsMapProxy = pyodide.globals.get("netsDict");
+            const netsMap = netsMapProxy.toJs();
+            netsMapProxy.destroy();
             TreeViewAdapter.generateTreeView(netsMap);
             
             mostCommonPrefix = pyodide.globals.get("mostCommonPrefix");
@@ -52,16 +59,26 @@ class CadFileLoader{
             const toggleOutlinesButton = globalInstancesMap.toggleOutlinesButton;
             toggleOutlinesButton.classList.add("button-selected");
 
+        } catch (error) {
+            console.error("Error with parsing CAD file by pyodide:", error);
+
+        } finally {
             LoadingScreen.hideLoadingDots();
             LoadingScreen.hideLoadingScreen();
         }
-        reader.readAsArrayBuffer(file);
     }
 
-    static removePreviousFileFromFS(pyodide, fileName){
+    static removeAllCadFilesFromFS(pyodide) {
         const pydodideFiles = pyodide.FS.readdir("/");
-        if (pydodideFiles.includes(fileName)){
-            pyodide.FS.unlink(`/${fileName}`);
-        }
+        
+        pydodideFiles.forEach(fileName => {
+            if (/\.(cad|gcd|tgz|zip)$/i.test(fileName)) {
+                try {
+                    pyodide.FS.unlink(`/${fileName}`);
+                } catch (error) {
+                    console.warn(`Removing file ${fileName} from Virtual File System error:`, error);
+                }
+            }
+        });
     }
 }
