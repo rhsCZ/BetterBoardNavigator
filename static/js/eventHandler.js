@@ -43,12 +43,12 @@ class EventHandler{
         canvas.height = canvasParent.clientHeight;
     }
 
-   static async loadCadFile(loadedFileName){
+   static async loadCadFile(newFileObject){
         CadFileLoader.removePreviousFileFromFS(pyodide, loadedFileName);
-        await CadFileLoader.openAndLoadCadFile(pyodide, loadedFileName);
+        await CadFileLoader.openAndLoadCadFile(pyodide, newFileObject);
         EventHandler.enableButtons();
         
-        return loadedFileName.name;
+        return newFileObject.name;
     }
 
     static enableButtons(){

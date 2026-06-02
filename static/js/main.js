@@ -178,7 +178,7 @@ async function _bindLoadFileEvents(){
             /\.(cad|gcd|tgz|zip)$/i.test(f.name)
         );
 
-        globalInstancesMap.loadedFileName = await EventHandler.loadCadFile(cadFile);
+        loadedFileName = await EventHandler.loadCadFile(cadFile);
     });
 }
 
